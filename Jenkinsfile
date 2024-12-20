@@ -110,21 +110,21 @@ pipeline {
                 }
             }
         }
-        stage('Write JSON') {
-            steps {
-                script {
-                    def data = [
-                        name: 'Muhammad Faqih Al Fadholi',
-                        university : 'CCIT FTUI',
-                        major : 'Software Engineering'
-                    ]
-                    writeJSON file: 'data_operator.json', json: data
-                    echo 'JSON file created: data_operator.json'
-                }
-            }
-        }
+//         stage('Write JSON') {
+//             steps {
+//                 script {
+//                     def data = [
+//                         name: 'Muhammad Faqih Al Fadholi',
+//                         university : 'CCIT FTUI',
+//                         major : 'Software Engineering'
+//                     ]
+//                     writeJSON file: 'data_operator.json', json: data
+//                     echo 'JSON file created: data_operator.json'
+//                 }
+//             }
+//         }
     }
-//     post {
+    post {
 //         success {
 //             echo 'Pipeline completed successfully!'
 //             script {
@@ -171,9 +171,9 @@ pipeline {
 //                 }
 //             }
 //         }
-//         always {
-//             echo 'Cleaning up...'
-//             cleanWs()
-//         }
-//     }
+        always {
+            echo 'Cleaning up...'
+            cleanWs()
+        }
+    }
 }
