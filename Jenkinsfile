@@ -2,8 +2,8 @@ pipeline {
     agent any
 
     environment {
-        AUTHOR = "Muhammad Faqih Al Fadholi"
-        EMAIL = "faqihalfadholi@gmail.com"
+        AUTHOR1 = "Muhammad Faqih Al Fadholi"
+        AUTHOR2 = "Ahmad Rifai"
     }
 
     options {
@@ -22,8 +22,8 @@ pipeline {
         stage('Environment Info') {
             steps {
                 script {
-                    echo "Author : ${AUTHOR}"
-                    echo "Email : ${EMAIL}"
+                    echo "Author1 : ${AUTHOR1}"
+                    echo "Author2 : ${AUTHOR2}"
                     echo "Job Name: ${env.JOB_NAME}"
                     echo "Build Number: ${env.BUILD_NUMBER}"
                     echo "Workspace: ${env.WORKSPACE}"
@@ -51,7 +51,7 @@ pipeline {
         stage('Build Status') {
             steps {
                 script {
-                    currentBuild.displayName = "#${env.BUILD_NUMBER} - Custom Build Name"
+                    currentBuild.displayName = "#${env.BUILD_NUMBER} - Calculator Web"
                     echo "Current Build Status: ${currentBuild.currentResult}"
                 }
             }
