@@ -77,13 +77,15 @@ pipeline {
         stage('Build and Running Container') {
             steps {
                 script {
+                   powershell """
+                    docker stop ${CONTAINER_NAME} || echo "Container not found or already stopped."
+                    docker rm ${CONTAINER_NAME} || echo "Container not found or already removed."
+                     """
+
                     powershell """
-                        docker stop ${CONTAINER_NAME} -ErrorAction SilentlyContinue
-                        docker rm ${CONTAINER_NAME} -ErrorAction SilentlyContinue
+                    docker volume create ${VOLUME_DATA} || echo "Volume already exists."
                     """
-
-                    powershell "docker volume create ${VOLUME_DATA} -ErrorAction SilentlyContinue"
-
+                    
                     def runArgs = "-d -p ${PORT_MAPPING} --name ${CONTAINER_NAME} -v ${VOLUME_DATA}:/app/data"
                     docker.image("${DOCKER_IMAGE}:${DOCKER_TAG}").run(runArgs)
                 }
