@@ -4,6 +4,11 @@ pipeline {
     environment {
         AUTHOR1 = "Muhammad Faqih Al Fadholi"
         AUTHOR2 = "Ahmad Rifai"
+        DOCKER_IMAGE = 'faqihfadholi/calculator-web'
+        DOCKER_TAG      = 'latest'
+        CONTAINER_NAME = 'calculator-container'
+        PORT_MAPPING = '8089:8080'
+        VOLUME_DATA = 'calculator-data'
     }
 
     options {
@@ -13,7 +18,7 @@ pipeline {
     stages {
         stage('Preparation') {
             steps {
-                echo 'Preparing the environment.......'
+                echo 'Preparing the environment'
                 powershell 'java -version'
                 powershell '.\\mvnw -version'
             }
@@ -33,18 +38,18 @@ pipeline {
         }
         stage('Build') {
             steps {
-                echo 'Building the project...'
+                echo 'Building the project'
                 powershell '.\\mvnw clean package -DskipTests'
             }
         }
         stage('Test') {
             steps {
-                echo 'Running tests........'
+                echo 'Running tests'
                 powershell '.\\mvnw test'
             }
              post {
                  always {
-                     junit '**/target/surefire-reports/*.xml'
+                     junit '/target/surefire-reports/*.xml'
                  }
              }
         }
@@ -56,19 +61,38 @@ pipeline {
                 }
             }
         }
-        stage('Deploy') {
+        stage('Build Docker Image') {
             steps {
-                echo 'Deploying the application...'
-                sleep(5)
-                powershell 'echo "Deploying application... after 5s"'
+                script {
+                    powershell """
+                        if (docker images -q ${DOCKER_IMAGE}:${DOCKER_TAG}) {
+                            docker rmi ${DOCKER_IMAGE}:${DOCKER_TAG} -f
+                        }
+                    """
+                    docker.build("${DOCKER_IMAGE}:${DOCKER_TAG}", "-f Dockerfile .")
+                }
             }
         }
 
+        stage('Build and Running Container') {
+            steps {
+                script {
+                    powershell """
+                        docker stop ${CONTAINER_NAME} -ErrorAction SilentlyContinue
+                        docker rm ${CONTAINER_NAME} -ErrorAction SilentlyContinue
+                    """
+
+                    powershell "docker volume create ${VOLUME_DATA} -ErrorAction SilentlyContinue"
+
+                    def runArgs = "-d -p ${PORT_MAPPING} --name ${CONTAINER_NAME} -v ${VOLUME_DATA}:/app/data"
+                    docker.image("${DOCKER_IMAGE}:${DOCKER_TAG}").run(runArgs)
+                }
+            }
+        }
     }
     post {
-
         always {
-            echo 'Cleaning up...'
+            echo 'Cleaning up'
             cleanWs()
         }
     }
