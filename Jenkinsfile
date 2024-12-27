@@ -78,14 +78,9 @@ pipeline {
             steps {
                 script {
                    powershell """
-                    docker stop ${CONTAINER_NAME} || echo "Container not found or already stopped."
-                    docker rm ${CONTAINER_NAME} || echo "Container not found or already removed."
+                    docker stop ${CONTAINER_NAME} 
+                    docker rm ${CONTAINER_NAME} 
                      """
-
-                    powershell """
-                    docker volume create ${VOLUME_DATA} || echo "Volume already exists."
-                    """
-                    
                     def runArgs = "-d -p ${PORT_MAPPING} --name ${CONTAINER_NAME} -v ${VOLUME_DATA}:/app/data"
                     docker.image("${DOCKER_IMAGE}:${DOCKER_TAG}").run(runArgs)
                 }
